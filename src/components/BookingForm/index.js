@@ -11,6 +11,8 @@ function getTime(value) {
 }
 
 function BookingForm({ form, tour }) {
+  const [duration, setDuration] = React.useState([]);
+
   function handleSubmit(e) {
     e.preventDefault();
 
@@ -43,14 +45,14 @@ function BookingForm({ form, tour }) {
     rules: [{ type: 'object', required: true, message: 'Please select time!' }],
   };
 
-  const changedTour = form.getFieldValue('tour');
-  const timeArr = React.useMemo(() => getTime(changedTour), [changedTour]);
-
   React.useEffect(() => {
-    form.setFieldsValue({
-      tour: tour.name,
-    });
-  }, [form, tour]);
+    setDuration(tour.time);
+    // eslint-disable-next-line
+  }, []);
+
+  function handleTourChange(value) {
+    setDuration(getTime(value));
+  }
 
   return (
     <Form {...formItemLayout} onSubmit={handleSubmit}>
@@ -103,8 +105,14 @@ function BookingForm({ form, tour }) {
       <Form.Item>
         {getFieldDecorator('tour', {
           rules: [{ required: true, message: 'Please select a Tour!' }],
+          initialValue: tour.name,
         })(
-          <Select size="large" placeholder="Select a kind of Tour" showSearch>
+          <Select
+            size="large"
+            placeholder="Select a kind of Tour"
+            showSearch
+            onChange={handleTourChange}
+          >
             {DATA_TOUR.map(tour => (
               <Option key={tour.id} value={tour.name}>
                 {tour.name}
@@ -114,13 +122,13 @@ function BookingForm({ form, tour }) {
         )}
       </Form.Item>
 
-      {form.getFieldValue('tour') ? (
+      {duration ? (
         <Form.Item>
           {getFieldDecorator('time', {
             rules: [{ required: true, message: 'Please select a Time!' }],
           })(
             <Select placeholder="Select a time" showSearch size="large">
-              {timeArr.map(time => (
+              {duration.map(time => (
                 <Option key={time} value={time}>
                   {time}
                 </Option>
